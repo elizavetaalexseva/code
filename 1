@@ -1,0 +1,298 @@
+#include <locale.h>
+#include <conio.h>
+#include <cmath>
+#include <windows.h>
+#include <iostream>
+using namespace std;
+class complex;
+
+//typedef int T;
+typedef complex T;
+
+class complex
+{
+	double real, img;
+public:
+	complex(double x = 0, double y = 0) { real = x; img = y; };
+	double get_re() { return real; }
+	double get_im() { return img; }
+	void operator= (complex& a) {
+		real = a.get_re();
+		img = a.get_im();
+	}
+	bool operator== (complex& a) {
+		if ((real == a.get_re()) && (img == a.get_im())) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	friend istream& operator>>(istream& in, complex& comp);
+	friend ostream& operator<<(ostream& out, const complex& comp);
+};
+
+istream& operator>>(istream& in, complex& comp) {
+	in >> comp.real >> comp.img;
+	return in;
+}
+ostream& operator<<(ostream& out, const complex& comp) {
+	out << comp.real;
+	if (comp.img >= 0)
+		cout << '+';
+	cout << comp.img << "*i";
+	return cout;
+}
+
+
+template <class T>
+class ar {
+	T* data;
+	int size;
+	int index;
+public:
+	ar(int& size);
+	~ar();
+	int get_s() { return size; };
+	void new_s(int s) { size = s; };
+	void new_i(int i) { index = i; };
+	T get_d(int& index) { return data[index]; };
+	int add(T&);
+	void input();
+	void output();
+	void del(int&);
+	bool is(ar&, int&);
+	bool isin(T);
+	void intersec(ar&, ar&);
+	void un(ar&, ar&);
+};
+
+
+bool ar <T>::isin(T n) {
+	for (int i = 0; i < size; i++) {
+		if (data[i] == n) {
+			return true;
+		}
+	}
+	return false;
+}
+
+ar<T>::ar(int& s) {
+	data = new T[s];
+	if (data == NULL) {
+		cerr << "Недостаточно памяти" << endl;
+		exit(1);
+	}
+	size = s;
+	index = 0;
+}
+
+ar<T>::~ar() {
+	delete[] data;
+	size = 0;
+	index = 0;
+}
+
+int ar<T>::add(T& value) {
+	if (index == size) return(-1);
+	else {
+		data[index] = value;
+		index++;
+		return(0);
+	}
+}
+
+void ar<T>::input() {
+	for (int i = 0; i < size; i++) {
+		T v;
+		cin >> v;
+		add(v);
+	}
+}
+
+void ar<T>::output() {
+	for (int i = 0; i < size; i++) {
+		cout << data[i] << endl;
+	}
+}
+
+void ar<T>::del(int& index) {
+	for (int i = index - 1; i < size - 1; i++) {
+		data[i] = data[i + 1];
+	}
+	size--;
+	index--;
+}
+
+bool ar<T>::is(ar& s2, int& index) {
+	int s = s2.get_s();
+	for (int j = 0; j < s; j++) {
+		T r = s2.get_d(j);
+		if (data[index] == r) {
+			return(true);
+		}
+	}
+	return (false);
+}
+
+void ar<T>::intersec(ar& s2, ar& s3) {
+	int i;
+	int k = 0;
+	for (i = 0; i < size; i++) {
+		if (is(s2, i)) {
+			s3.add(data[i]);
+			k++;
+		}
+	}
+	s3.new_s(k);
+}
+
+void ar<T>::un(ar& s2, ar& s4) {
+	int size2 = s2.get_s();
+	int i, j;
+	int k = 0;
+	for (i = 0; i < size; i++) {
+		if (!is(s2, i)) {
+			s4.add(data[i]);
+			k++;
+		}
+	}
+	for (j = 0; j < size2; j++) {
+		T d = s2.get_d(j);
+		s4.add(d);
+		k++;
+	}
+	s4.new_s(k);
+}
+
+
+
+int main()
+{
+	SetConsoleOutputCP(1251);
+	SetConsoleCP(1251);
+	int r1, r2, r3, r4, i, n, k;
+	int c = 0;
+	T p;
+	cout << "Введите размер массива 1" << endl;
+	cin >> r1;
+	cout << "Введите размер массива 2" << endl;
+	cin >> r2;
+	if (r1 < r2) {
+		r3 = r1;
+	}
+	else {
+		r3 = r2;
+	}
+	r4 = r1 + r2;
+
+	ar<T> s11(r1);
+	ar<T> s12(r2);
+	ar<T> s13(r3);
+	ar<T> s14(r4);
+	while (c != 8) {
+		cout << "Выберите действие" << endl << "1......Ввод массивов" << endl << "2......Вывод массивов" << endl << "3......Удаление элемента"
+			<< endl << "4......Добавление элемента" << endl << "5......Проверить наличие элемента" << endl << "6......Пересечение массивов" << endl
+			<< "7......Объединение массивов" << endl << "8......Выход" << endl;
+		cin >> c;
+		switch (c) {
+		case 1:
+			cout << "Введите массив 1" << endl;
+			s11.input();
+			cout << "Введите массив 2" << endl;
+			s12.input();
+			break;
+		case 2:
+			cout << "Ваш массив 1:" << endl;
+			s11.output();
+			cout << "Ваш массив 2:" << endl;
+			s12.output();
+			break;
+		case 3:
+			cout << "В каком массиве удалить элемент?" << endl;
+			cin >> n;
+			if (n == 1) {
+				cout << "Какой по счету элемент удалить?" << endl;
+				cin >> n;
+				s11.del(n);
+				cout << "Ваш массив 1:" << endl;
+				s11.output();
+			}
+			else {
+				cout << "Какой по счету элемент удалить?" << endl;
+				cin >> n;
+				s12.del(n);
+				cout << "Ваш массив 2:" << endl;
+				s12.output();
+			}
+			break;
+		case 4:
+			cout << "В какой массив добавить элемент?" << endl;
+			cin >> n;
+			if (n == 1) {
+				cout << "Введите элемент" << endl;
+				cin >> p;
+				k = s11.get_s() + 1;
+				s11.new_s(k);
+				s11.new_i(k - 1);
+				s11.add(p);
+				cout << "Ваш массив 1:" << endl;
+				s11.output();
+			}
+			else {
+				cout << "Введите элемент" << endl;
+				cin >> p;
+				k = s12.get_s() + 1;
+				s12.new_s(k);
+				s12.new_i(k - 1);
+				s12.add(p);
+				cout << "Ваш массив 2:" << endl;
+				s12.output();
+			}
+			break;
+		case 5:
+			cout << "В каком массиве проверить наличие элемента?" << endl;
+			cin >> n;
+			if (n == 1) {
+				cout << "Введите элемент" << endl;
+				cin >> p;
+				if (s11.isin(p)) {
+					cout << "Данный элемент есть в массиве 1" << endl;
+				}
+				else {
+					cout << "Данного элемента нет в массиве 1" << endl;
+				}
+			}
+			else {
+				cout << "Введите элемент" << endl;
+				cin >> p;
+				if (s12.isin(p)) {
+					cout << "Данный элемент есть в массиве 2" << endl;
+				}
+				else {
+					cout << "Данного элемента нет в массиве 2" << endl;
+				}
+			}
+
+			break;
+		case 6:
+			s11.intersec(s12, s13);
+			cout << "Ваш массив пересечения:" << endl;
+			s13.output();
+			break;
+		case 7:
+			s11.un(s12, s14);
+			cout << "Ваш массив объединения:" << endl;
+			s14.output();
+			break;
+		case 8:
+			exit(0);
+			break;
+		default:
+			cout << "Введен некорректный символ" << endl;
+			break;
+		}
+	}
+
+	return 0;
+}
